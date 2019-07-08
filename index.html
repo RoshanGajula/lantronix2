@@ -1,0 +1,208 @@
+<html>
+<head>
+    <style>
+        table tr th {
+            background: #337ab7;
+            color: white;
+            text-align: left;
+            vertical-align: middle;
+        }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.5/angular.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.0.0/ui-bootstrap-tpls.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+
+    <script>
+        //Angularjs and jquery.datatable with ui.bootstrap and ui.utils
+
+        var app = angular.module('appModule', ['ui.bootstrap', 'ui.utils']);
+        app.service('appService', function ($http) {
+            _getScripts = function () {
+                return $http.get('assets/scripts-response.json');
+            }
+            _getjobs = function () {
+                return $http.get('assets/jobs-response.json');
+            }
+            return {
+                getScripts: _getScripts,
+                getjobs: _getjobs
+            }
+        });
+        app.controller('appCtrl', function ($scope, appService) {
+
+            $scope.activeTab = 'Scripts';
+            $scope.activeData;
+
+            this.$onInit = function () {
+                $scope.renderScriptsView();
+            } 
+
+            $scope.tabsHandler = function (event) {
+                if ($scope.activeTab == 'Scripts') {
+                    $scope.renderScriptsView();
+                }
+                else if ($scope.activeTab == 'Jobs') {
+                    $scope.renderJobsView();
+                }
+            }
+
+            $scope.renderScriptsView = function () {
+                appService.getScripts().then(function(resp) {
+                    $scope.scriptsData = resp;
+                    $scope.scriptsData = $scope.scriptsData.scripts;
+                    $scope.activeData = $scope.scriptsData;
+                    $('.dataTables_empty').html("Showing " + $scope.activeData.length + " of " + $scope.activeData.length+" records");
+                }).catch(function () {
+                    $scope.scriptsData = {
+                        "scripts": [
+                            {
+                                "id": "17fcf98b-0784-4a68-9f54-61a1934727e9",
+                                "script_id": "2d21b7cd-e188-4050-9aae-56b8de8b0908",
+                                "script": {
+                                    "id": "2d21b7cd-e188-4050-9aae-56b8de8b0908",
+                                    "name": "CLI_DEVICE_DETECT_EXP",
+                                    "description": "Script to detect the prompt on a device connected to a SLC or SLB device port, and set the device port name to the prompt.",
+                                    "script_language": "expect"
+                                }
+                            },
+                            {
+                                "id": "da582012-d3f3-4822-84bb-c58639214de4",
+                                "script_id": "860e216e-12e2-470c-8b46-0159d6cb394a",
+                                "script": {
+                                    "id": "860e216e-12e2-470c-8b46-0159d6cb394a",
+                                    "name": "CLI_AUTH_RADIUS_EXP",
+                                    "description": "Script to set the RADIUS authentication settings of the SLC",
+                                    "script_language": "expect"
+                                }
+                            }
+                        ]
+                    }
+                    $scope.scriptsData = $scope.scriptsData.scripts;
+                    $scope.activeData = $scope.scriptsData;
+                    $('.dataTables_empty').html("Showing " + $scope.activeData.length + " of " + $scope.activeData.length + " records");
+                })
+            }
+
+            $scope.renderJobsView = function () {
+                appService.getjobs().then(function (resp) {
+                    $scope.jobsData = resp;
+                    $scope.jobsData = $scope.jobsData.jobs;
+                    $scope.activeData = $scope.jobsData;
+                    $('.dataTables_empty').html("Showing " + $scope.activeData.length + " of " + $scope.activeData.length + " records");
+                }).catch(function () {
+                    $scope.jobsData = {
+                        "jobs": [
+                            {
+                                "id": "1506a86e-6b4a-4ae0-a53e-9f5cf6b97a65",
+                                "script_name": "CLI_DEVICE_DETECT_EXP",
+                                "name": "Job1",
+                                "enabled": true,
+                                "JobStatus": "Completed"
+                            },
+                            {
+                                "id": "2b95e01d-7d08-422e-9331-2d0cf31da9fc",
+                                "script_name": "SAVE_COPY_OF_CISCO_CONFIG_EXP",
+                                "name": "Job2",
+                                "enabled": true,
+                                "JobStatus": "Pending"
+                            }
+                        ]
+                    }
+                    $scope.jobsData = $scope.jobsData.jobs;
+                    $scope.activeData = $scope.jobsData;
+                    $('.dataTables_empty').html("Showing " + $scope.activeData.length + " of " + $scope.activeData.length + " records");
+                })
+            }
+            
+            $scope.dataTableOpt = {
+                //custom datatable options
+                // or load data through ajax call also
+                "aLengthMenu": [[10, 50, 100, -1], [10, 50, 100, 'All']],
+            };
+        });
+
+    </script>
+</head>
+
+<body>
+<div class="container" ng-app="appModule">
+    <div class="panel" data-ng-controller="appCtrl">
+        <div class="panel-heading border">
+            <div class="header hdr1">
+                <a href="#" class="logo">Script Manager</a>
+                <div class="header-right">
+                    <a href="#"><i class='far fa-question-circle'></i>Help</a>
+                    <a href="#"><i class='far fa-user-circle'></i>Vinay</a>
+                </div>
+            </div>
+            <!-- Tab links -->
+            <div class="tab">
+                <button class="tablinks" ng-class="{'active': activeTab=='Scripts'}" ng-click="activeTab='Scripts'; tabsHandler($event)">Scripts</button>
+                <button class="tablinks" ng-class="{'active': activeTab=='Jobs'}" ng-click="activeTab='Jobs'; tabsHandler($event)">Jobs</button>
+            </div>
+            <div class="table-search">
+                <input type="text" ng-model="searchFilter" placeholder="Search" />
+            </div>
+        </div>
+        <!--Scripts View-->
+        <div class="panel-body" ng-if="activeTab == 'Scripts'">
+            <table id="scriptsTable" class="table table-bordered bordered table-striped table-condensed datatable" ui-jq="dataTable" ui-options="dataTableOpt">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Language</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="n in scriptsData | filter: searchFilter">
+                        <td>{{n.script.name}}</td>
+                        <td>{{n.script.description}}</td>
+                        <td>Example</td>
+                        <td>{{n.script.script_language}}</td>
+                        <td>...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Jobs view-->
+        <div class="panel-body" ng-if="activeTab == 'Jobs'">
+            <table class="table table-bordered bordered table-striped table-condensed datatable" ui-jq="dataTable" ui-options="dataTableOpt">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Scripts</th>
+                        <th>Job Status</th>
+                        <th>Enabled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="n in jobsData | filter: searchFilter">
+                        <td><input type="checkbox" /></td>
+                        <td>{{n.name}}</td>
+                        <td>{{n.script_name}}</td>
+                        <td>{{n.JobStatus}}</td>
+                        <td>{{n.enabled}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
